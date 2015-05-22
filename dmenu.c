@@ -86,6 +86,7 @@ static ColorSet *undercol;
 static Atom clip, utf8;
 static Bool topbar = True;
 static Bool centerX = False;
+static Bool centerY = False;
 static Bool running = True;
 static Bool filter = False;
 static Bool maskin = False;
@@ -145,6 +146,8 @@ main(int argc, char *argv[]) {
          noinput = True;
       else if(!strcmp(argv[i], "-centerx"))
          centerX = True;
+      else if(!strcmp(argv[i], "-centery"))
+         centerY = True;
 
 		else if(!strcmp(argv[i], "-t"))
 			match = matchtok;
@@ -1014,6 +1017,10 @@ setup(void) {
 		x = x + ((dimw - width) / 2);
 	}
 
+    if(centerY && width != 0) {
+        y = y + ((dimh - mh) / 2);
+    }
+
 	/* create menu window */
 	swa.background_pixel = normcol->BG;
 	swa.event_mask = ExposureMask | KeyPressMask | VisibilityChangeMask;
@@ -1045,7 +1052,7 @@ usage(void) {
 	fputs("usage: dmenu [-b] [-q] [-f] [-r] [-i] [-z] [-t] [-mask] [-noinput]\n"
 				"             [-s screen] [-name name] [-class class] [ -o opacity]\n"
 				"             [-dim opcity] [-dc color] [-l lines] [-p prompt] [-fn font]\n"
-	      "             [-x xoffset] [-y yoffset] [-h height] [-w width] [-uh height] [-centerx]\n"
+	      "             [-x xoffset] [-y yoffset] [-h height] [-w width] [-uh height] [-centerx] [-centery]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-uc color] [-hist histfile] [-v]\n", stderr);
 	exit(EXIT_FAILURE);
 }
