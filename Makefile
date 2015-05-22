@@ -2,7 +2,7 @@ VERSION = 0.1
 
 CC      ?= gcc
 LIBS     = -lX11 -lXinerama -lXft -lXrender -lfreetype -lz -lfontconfig
-CFLAGS  += -std=c99 -pedantic -Wall -Wextra -I/usr/include/freetype2
+CFLAGS  += -g -std=c99 -pedantic -Wall -Wextra -I/usr/include/freetype2
 CFLAGS  += -DXINERAMA -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\"
 LDFLAGS +=
 

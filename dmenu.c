@@ -838,6 +838,9 @@ matchfuzzy(void) {
 					}
 				}
 			}
+            if(caseInsensitive)
+                free(itemText);
+
 			/* build list of matches */
 			if(eidx != -1) {
 				/* compute distance */
@@ -871,6 +874,8 @@ matchfuzzy(void) {
 	}
 	curr = sel = matches;
 	calcoffsets();
+    if(caseInsensitive)
+        free(inputText);
 }
 
 size_t
