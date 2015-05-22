@@ -7,6 +7,7 @@ dmenu \- dynamic menu
 .RB [ \-f ]
 .RB [ \-r ]
 .RB [ \-i ]
+.RB [ \-s ]
 .RB [ \-z ]
 .RB [ \-t ]
 .RB [ \-mask ]
@@ -82,6 +83,10 @@ beginning of the list.
 .TP
 .B \-i
 dmenu matches menu items case insensitively.
+.TP
+.B \-s
+dmenu matches menu items using smart case. case insensitive if only lower case letters are used,
+case sensitive if any capital letters are used.
 .TP
 .B \-z
 dmenu uses fuzzy matching. It matches items that have all characters entered, in sequence they are

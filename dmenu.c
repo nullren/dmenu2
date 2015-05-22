@@ -89,6 +89,8 @@ static Atom clip, utf8;
 static Bool topbar = True;
 static Bool centerX = False;
 static Bool centerY = False;
+static Bool caseInsensitive = False;
+static Bool smartCase = False;
 static Bool running = True;
 static Bool filter = False;
 static Bool maskin = False;
@@ -137,10 +139,13 @@ main(int argc, char *argv[]) {
 			match = matchfuzzy;
  		else if(!strcmp(argv[i], "-r"))
  			filter = True;
+        else if(!strcmp(argv[i], "-s"))
+            smartCase = True;
 		else if(!strcmp(argv[i], "-i")) { /* case-insensitive item matching */
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
 			fstrchr = strchri;
+            caseInsensitive = True;
 		}
       else if(!strcmp(argv[i], "-mask")) /* password-style input */
          maskin = True;
@@ -451,6 +456,27 @@ insert(const char *str, ssize_t n) {
 	if(n > 0)
 		memcpy(&text[cursor], str, n);
 	cursor += n;
+
+    if (smartCase) {
+        int text_len = strlen(text), i;
+        caseInsensitive = True;
+        for (i = 0; i < text_len; ++i) {
+            if (!islower(text[i])) {
+                caseInsensitive = False;
+                break;
+            }
+        }
+        if (caseInsensitive) {
+            fstrncmp = strncasecmp;
+            fstrstr = cistrstr;
+            fstrchr = strchri;
+        }
+        else {
+            fstrncmp = strncmp;
+            fstrstr = strstr;
+            fstrchr = strchr;
+        }
+    }
 	match();
 }
 
@@ -766,6 +792,16 @@ compare_distance(const void *a, const void *b) {
 	return da->distance - db->distance;
 }
 
+char* lowerString(char* s, int n) {
+    char* sLower = malloc(sizeof(char) * n);
+    strcpy(sLower, s);
+    int i;
+    for(i = 0; i < n; ++i)
+        sLower[i] = tolower(sLower[i]);
+
+    return sLower;
+}
+
 void
 matchfuzzy(void) {
 	/* bang - we have so much memory */
@@ -774,6 +810,7 @@ matchfuzzy(void) {
 	char c;
 	int number_of_matches = 0, i, pidx, sidx, eidx;
 	int text_len = strlen(text), itext_len;
+    char* inputText = caseInsensitive ? lowerString(text, text_len) : text;
 
 	matches = matchend = NULL;
 
@@ -785,12 +822,13 @@ matchfuzzy(void) {
 	for(item = items; item && item->text; item++) {
 		if(text_len) {
 			itext_len = strlen(item->text);
+            char* itemText = caseInsensitive ? lowerString(item->text, itext_len) : item->text;
 			pidx = 0;
 			sidx = eidx = -1;
 			/* walk through item text */
-			for(i = 0; i < itext_len && (c = item->text[i]); i++) {
+			for(i = 0; i < itext_len && (c = itemText[i]); i++) {
 				/* fuzzy match pattern */
-				if(text[pidx] == c) {
+				if(inputText[pidx] == c) {
 					if(sidx == -1)
 						sidx = i;
 					pidx++;
@@ -1111,7 +1149,7 @@ setup(void) {
 
 void
 usage(void) {
-	fputs("usage: dmenu [-b] [-q] [-f] [-r] [-i] [-z] [-t] [-mask] [-noinput]\n"
+	fputs("usage: dmenu [-b] [-q] [-f] [-r] [-i] [-s] [-z] [-t] [-mask] [-noinput]\n"
 				"             [-s screen] [-name name] [-class class] [ -o opacity]\n"
 				"             [-dim opcity] [-dc color] [-l lines] [-p prompt] [-fn font]\n"
 	      "             [-x xoffset] [-y yoffset] [-h height] [-w width] [-uh height] [-centerx] [-centery]\n"
